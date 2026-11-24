@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Production AI Operating Framework (PAIOF) | Raguraman Ramachandran, PMP</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --surface-light: #334155;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-dark: #0284c7;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --border: #334155;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    header {
+      background: rgba(15, 23, 42, 0.95);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 1rem 2rem;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+    }
+    .brand { font-weight: 700; font-size: 1.15rem; color: var(--accent); letter-spacing: 0.3px; }
+    .brand span { color: var(--text); font-weight: 400; font-size: 0.9rem; display: block; }
+    nav { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    nav button {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--muted);
+      padding: 0.5rem 0.9rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    nav button:hover { color: var(--text); background: var(--surface); }
+    nav button.active {
+      background: var(--accent-dark);
+      color: #fff;
+      border-color: var(--accent);
+    }
+    main { max-width: 1120px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+    .tab-content { display: none; animation: fadeIn 0.25s ease; }
+    .tab-content.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+    .hero {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 2.5rem;
+      margin-bottom: 2rem;
+    }
+    .badge {
+      display: inline-block;
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent);
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+    h1 { font-size: 2.1rem; line-height: 1.25; margin-bottom: 1rem; }
+    h2 { font-size: 1.5rem; margin-bottom: 1rem; color: var(--text); }
+    h3 { font-size: 1.15rem; margin-bottom: 0.5rem; color: var(--accent); }
+    p { color: var(--muted); margin-bottom: 1rem; }
+
+    .btn-row { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1.5rem; }
+    .btn {
+      padding: 0.65rem 1.2rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.92rem;
+      cursor: pointer;
+      border: none;
+      transition: 0.2s;
+    }
+    .btn-primary { background: var(--accent); color: #0f172a; }
+    .btn-primary:hover { background: #7dd3fc; }
+    .btn-secondary { background: var(--surface-light); color: var(--text); border: 1px solid var(--border); }
+    .btn-secondary:hover { background: #475569; }
+
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.25rem; margin-bottom: 2rem; }
+    .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.4rem;
+    }
+    .pillar-card { cursor: pointer; transition: border-color 0.2s, transform 0.15s; }
+    .pillar-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+    .pillar-card.selected { border-color: var(--accent); background: #1e3a5f; }
+
+    table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.9rem; }
+    th, td { text-align: left; padding: 0.75rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+    th { background: #0f172a; color: var(--accent); font-weight: 600; }
+    .tag {
+      display: inline-block;
+      padding: 0.15rem 0.55rem;
+      border-radius: 4px;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+    .tag-critical { background: rgba(239, 68, 68, 0.2); color: #fca5a5; }
+    .tag-high { background: rgba(245, 158, 11, 0.2); color: #fcd34d; }
+    .tag-medium { background: rgba(56, 189, 248, 0.2); color: #7dd3fc; }
+    .tag-go { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; }
+
+    input, select {
+      background: #0f172a;
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.55rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      width: 100%;
+    }
+    label { display: block; font-size: 0.85rem; color: var(--muted); margin-bottom: 0.35rem; font-weight: 500; }
+    .form-group { margin-bottom: 1rem; }
+
+    .result-box {
+      background: #0f172a;
+      border-left: 4px solid var(--accent);
+      padding: 1.25rem;
+      border-radius: 6px;
+      margin-top: 1rem;
+    }
+    .week-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.85rem;
+      padding: 0.85rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .week-item input[type="checkbox"] { width: 18px; height: 18px; margin-top: 0.25rem; accent-color: var(--accent); cursor: pointer; }
+    .week-item.done strong { text-decoration: line-through; color: var(--muted); }
+    footer {
+      text-align: center;
+      padding: 2rem;
+      color: var(--muted);
+      font-size: 0.85rem;
+      border-top: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    PAIOF &mdash; Production AI Operating Framework
+    <span>Open-Source CAIO Governance, Agentic Guardrails &amp; FinOps Playbook</span>
+  </div>
+  <nav>
+    <button class="active" onclick="switchTab('overview', this)">1. Overview</button>
+    <button onclick="switchTab('governance', this)">2. Governance &amp; Policy</button>
+    <button onclick="switchTab('guardrails', this)">3. Agentic Guardrails</button>
+    <button onclick="switchTab('finops', this)">4. AI FinOps &amp; ROI</button>
+    <button onclick="switchTab('hub', this)">5. CAIO Hub &amp; Bio</button>
+  </nav>
+</header>
+
+<main>
+  <!-- TAB 1: OVERVIEW -->
+  <section id="overview" class="tab-content active">
+    <div class="hero">
+      <div class="badge">NIST AI RMF 1.0 &bull; ISO/IEC 42001 &bull; EU AI Act Aligned</div>
+      <h1>Move Enterprise AI From Pilot Purgatory to Governed Production.</h1>
+      <p style="font-size: 1.05rem; color: #cbd5e1; max-width: 820px;">
+        An open-source executive operating framework for Chief AI Officers, technology leaders, and program executives&mdash;combining boardroom AI governance, autonomous agent guardrails, and unit-economics FinOps into deployable templates.
+      </p>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="switchTab('governance', document.querySelectorAll('nav button')[1])">Explore Governance Templates</button>
+        <button class="btn btn-secondary" onclick="downloadStarterKit()">Download Starter Kit (.md)</button>
+      </div>
+    </div>
+
+    <h2>Interactive 4-Pillar Architecture</h2>
+    <p>Select any pillar below to inspect its executive deliverables and boardroom controls.</p>
+    <div class="grid-4">
+      <div class="card pillar-card selected" onclick="selectPillar(0, this)">
+        <h3>Pillar 1: Governance</h3>
+        <p>Acceptable Use Policy, Shadow AI elimination, and NIST AI RMF risk registers.</p>
+      </div>
+      <div class="card pillar-card" onclick="selectPillar(1, this)">
+        <h3>Pillar 2: Agentic Guardrails</h3>
+        <p>Tiered risk classification, Human-in-the-Loop gates, and kill-switch protocols.</p>
+      </div>
+      <div class="card pillar-card" onclick="selectPillar(2, this)">
+        <h3>Pillar 3: AI FinOps &amp; ROI</h3>
+        <p>Token/compute unit economics, model routing, and P&amp;L payback gates.</p>
+      </div>
+      <div class="card pillar-card" onclick="selectPillar(3, this)">
+        <h3>Pillar 4: 90-Day Execution</h3>
+        <p>Structured program delivery from audit to production rollout.</p>
+      </div>
+    </div>
+
+    <div class="card" id="pillar-detail">
+      <h3>Pillar 1: Enterprise AI Governance &amp; Risk Management</h3>
+      <p style="color: #e2e8f0;">Establishes clear accountability across Legal, CISO, Engineering, and Business Units before scaling generative or predictive AI tools.</p>
+      <ul style="margin-left: 1.25rem; color: var(--muted);">
+        <li><strong>Acceptable Use Policy (AUP):</strong> Prohibits pasting PII, PHI, source code, or client secrets into public consumer LLMs.</li>
+        <li><strong>AI Governance Council:</strong> Cross-functional review board approving Tier 2 and Tier 3 production deployments.</li>
+        <li><strong>Vendor AI Vetting:</strong> Mandatory Zero Data Retention (ZDR) and model-training opt-out clauses in SaaS procurement.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- TAB 2: GOVERNANCE & POLICY -->
+  <section id="governance" class="tab-content">
+    <h2>Enterprise AI Acceptable Use &amp; Governance Policy</h2>
+    <div class="card" style="margin-bottom: 2rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem;">
+        <h3>Executive Policy Standard (v1.0)</h3>
+        <button class="btn btn-secondary" onclick="copyPolicy()">Copy Policy Text</button>
+      </div>
+      <div id="policy-text" style="color: #cbd5e1; font-size: 0.95rem;">
+        <p><strong>1. Scope:</strong> Applies to all employees, contractors, and third-party vendors evaluating or deploying Generative AI, Machine Learning, or Autonomous Agent workflows.</p>
+        <p><strong>2. Shadow AI Prohibition:</strong> Confidential company data, PII, financial records, and proprietary code must never be entered into unapproved public AI interfaces.</p>
+        <p><strong>3. Tiered Human-in-the-Loop (HITL) Mandate:</strong><br>
+        &bull; <em>Tier 1 (Internal Productivity):</em> Enterprise Zero-Data-Retention tools only; standard employee verification.<br>
+        &bull; <em>Tier 2 (External / Operational):</em> Requires AI Council sign-off and mandatory human review prior to customer release.<br>
+        &bull; <em>Tier 3 (Autonomous Agents / Regulated):</em> Requires formal Risk Assessment, red-teaming, sandboxed permissions, and deterministic kill switches.</p>
+      </div>
+    </div>
+
+    <h2>Enterprise AI Risk Register (NIST AI RMF Aligned)</h2>
+    <div class="grid-2" style="margin-bottom: 1rem;">
+      <div>
+        <label for="risk-search">Search Risks or Mitigations</label>
+        <input type="text" id="risk-search" placeholder="Filter by keyword (e.g., RAG, Shadow AI, FinOps)..." onkeyup="filterRisks()" />
+      </div>
+      <div>
+        <label for="risk-level">Filter by Inherent Severity</label>
+        <select id="risk-level" onchange="filterRisks()">
+          <option value="ALL">All Severity Levels</option>
+          <option value="Critical">Critical</option>
+          <option value="High">High</option>
+          <option value="Medium">Medium</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="card" style="overflow-x: auto;">
+      <table id="risk-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>NIST Function &amp; Category</th>
+            <th>Threat / Failure Mode</th>
+            <th>Severity</th>
+            <th>Required Technical &amp; Governance Control</th>
+            <th>Owner</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr data-level="High">
+            <td><strong>AI-01</strong></td>
+            <td>Map / Manage<br><small>Data Leakage</small></td>
+            <td>Employees paste confidential client or financial data into public LLMs that train on user inputs.</td>
+            <td><span class="tag tag-high">High</span></td>
+            <td>Block consumer AI domains at network level; deploy enterprise sandbox with Zero Data Retention (ZDR).</td>
+            <td>CISO / IT</td>
+          </tr>
+          <tr data-level="High">
+            <td><strong>AI-02</strong></td>
+            <td>Measure / Manage<br><small>Hallucination</small></td>
+            <td>Customer-facing assistant fabricates policy terms, pricing, or legal commitments.</td>
+            <td><span class="tag tag-high">High</span></td>
+            <td>Enforce Retrieval-Augmented Generation (RAG) grounded in verified sources with mandatory citations and HITL review.</td>
+            <td>Product / Ops</td>
+          </tr>
+          <tr data-level="Critical">
+            <td><strong>AI-03</strong></td>
+            <td>Govern / Manage<br><small>Agent Runaway</small></td>
+            <td>Autonomous multi-agent workflow executes unintended database writes, emails, or API transactions.</td>
+            <td><span class="tag tag-critical">Critical</span></td>
+            <td>Least-privilege API tokens, strict spend/rate caps, staging sandbox, and human approval gates before write actions.</td>
+            <td>CAIO / Eng</td>
+          </tr>
+          <tr data-level="High">
+            <td><strong>AI-04</strong></td>
+            <td>Measure / Govern<br><small>Bias &amp; Compliance</small></td>
+            <td>AI screening or scoring creates disparate impact across protected groups, violating employment/lending law.</td>
+            <td><span class="tag tag-high">High</span></td>
+            <td>Pre-deployment bias audits, drift monitoring, and strict ban on autonomous final decisions in HR or credit.</td>
+            <td>Legal / HR</td>
+          </tr>
+          <tr data-level="Medium">
+            <td><strong>AI-05</strong></td>
+            <td>Govern / Manage<br><small>AI FinOps Overrun</small></td>
+            <td>Unbounded agent loops or oversized frontier model calls cause runaway token/cloud inference spend.</td>
+            <td><span class="tag tag-medium">Medium</span></td>
+            <td>Hard token-budget alerts, intelligent model routing (small models first), and monthly P&amp;L ROI reviews.</td>
+            <td>CAIO / CFO</td>
+          </tr>
+          <tr data-level="Medium">
+            <td><strong>AI-06</strong></td>
+            <td>Map / Govern<br><small>Vendor AI Exposure</small></td>
+            <td>Existing SaaS vendors enable embedded AI features that train on customer data by default.</td>
+            <td><span class="tag tag-medium">Medium</span></td>
+            <td>Update procurement checklists to mandate AI opt-out clauses and ISO 42001 / SOC 2 Type II attestation.</td>
+            <td>Procurement</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- TAB 3: AGENTIC GUARDRAILS -->
+  <section id="guardrails" class="tab-content">
+    <h2>Interactive Agentic AI Risk Classifier</h2>
+    <p>Configure a proposed AI workflow below to determine its governance tier and mandatory production controls.</p>
+    <div class="card">
+      <div class="grid-2">
+        <div class="form-group">
+          <label for="data-sens">1. Data Sensitivity Accessed</label>
+          <select id="data-sens" onchange="classifyAgent()">
+            <option value="1">Public or Non-Sensitive Internal Docs</option>
+            <option value="2">Proprietary Business / Financial Data</option>
+            <option value="3">Regulated PII, PHI, or Customer Records</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="sys-access">2. System Action Capability</label>
+          <select id="sys-access" onchange="classifyAgent()">
+            <option value="1">Read-Only / Text Generation Only</option>
+            <option value="2">Drafts External Emails or CRM Updates (Queued)</option>
+            <option value="3">Direct Production Write / Financial / API Execution</option>
+          </select>
+        </div>
+      </div>
+      <div class="result-box" id="agent-result"></div>
+    </div>
+  </section>
+
+  <!-- TAB 4: AI FINOPS & ROI -->
+  <section id="finops" class="tab-content">
+    <h2>AI Use-Case ROI &amp; FinOps Scorecard</h2>
+    <p>Evaluate candidate AI initiatives on hard unit economics before committing engineering budget.</p>
+    <div class="card">
+      <div class="grid-2">
+        <div class="form-group">
+          <label for="uc-name">Use Case Name</label>
+          <input type="text" id="uc-name" value="Automated Contract Triage Assistant" />
+        </div>
+        <div class="form-group">
+          <label for="annual-benefit">Estimated Annual Cost Savings / Revenue ($)</label>
+          <input type="number" id="annual-benefit" value="180000" />
+        </div>
+        <div class="form-group">
+          <label for="impl-cost">One-Time Implementation &amp; Integration Cost ($)</label>
+          <input type="number" id="impl-cost" value="45000" />
+        </div>
+        <div class="form-group">
+          <label for="run-cost">Annual Token, Cloud &amp; Maintenance Run Cost ($)</label>
+          <input type="number" id="run-cost" value="24000" />
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="calculateROI()">Calculate Boardroom Gate</button>
+      <div class="result-box" id="roi-output"></div>
+    </div>
+  </section>
+
+  <!-- TAB 5: CAIO HUB & BIO -->
+  <section id="hub" class="tab-content">
+    <div class="card" style="margin-bottom: 2rem;">
+      <div class="badge">Executive Profile &amp; Fractional Advisory</div>
+      <h2>Raguraman Ramachandran, PMP</h2>
+      <p style="color: #e2e8f0;">
+        Technology and program leadership executive specializing in enterprise AI strategy, regulatory governance (NIST AI RMF / ISO 42001), and high-ROI production delivery. Bridges C-suite business priorities with disciplined engineering, legal, and financial execution.
+      </p>
+      <p><strong>90-Day Fractional CAIO Sprint:</strong> Days 1&ndash;30 Shadow AI Audit &amp; Governance Council &rarr; Days 31&ndash;60 FinOps Use-Case Prioritization &rarr; Days 61&ndash;90 Governed Production Rollout.</p>
+    </div>
+
+    <h2>12-Week CAIO Study &amp; LinkedIn Execution Tracker</h2>
+    <p>Progress saves automatically in your browser as you complete each module and publish your weekly artifact.</p>
+    <div class="card" id="tracker-list"></div>
+  </section>
+</main>
+
+<footer>
+  &copy; 2026 Raguraman Ramachandran, PMP &bull; The Production AI Operating Framework (PAIOF) &bull; Open-Source Executive Resource
+</footer>
+
+<script>
+  const pillars = [
+    {
+      title: "Pillar 1: Enterprise AI Governance & Risk Management",
+      desc: "Establishes clear accountability across Legal, CISO, Engineering, and Business Units before scaling generative or predictive AI tools.",
+      bullets: [
+        "<strong>Acceptable Use Policy (AUP):</strong> Prohibits pasting PII, PHI, source code, or client secrets into public consumer LLMs.",
+        "<strong>AI Governance Council:</strong> Cross-functional review board approving Tier 2 and Tier 3 production deployments.",
+        "<strong>Vendor AI Vetting:</strong> Mandatory Zero Data Retention (ZDR) and model-training opt-out clauses in SaaS procurement."
+      ]
+    },
+    {
+      title: "Pillar 2: Autonomous Agentic Guardrails",
+      desc: "Contains operational blast radius when deploying multi-agent workflows connected to enterprise APIs and databases.",
+      bullets: [
+        "<strong>Least-Privilege Scoping:</strong> Agents run on dedicated service accounts with explicit read/write boundaries.",
+        "<strong>Human-in-the-Loop (HITL) Gates:</strong> Mandatory human sign-off prior to external communications or financial writes.",
+        "<strong>Deterministic Kill Switches:</strong> Automated circuit breakers triggered by anomalous API loops or token spikes."
+      ]
+    },
+    {
+      title: "Pillar 3: AI FinOps & Unit-Economics ROI",
+      desc: "Replaces vanity 'hours saved' metrics with strict P&L accountability, model routing, and payback thresholds.",
+      bullets: [
+        "<strong>Intelligent Model Routing:</strong> Route routine classification/extraction to small models; reserve frontier LLMs for complex reasoning.",
+        "<strong>GenAI vs. Predictive ML Gate:</strong> Require proof that simpler statistical/ML models cannot solve the problem at 1/10th the cost.",
+        "<strong>Payback Threshold:</strong> Prioritize production use cases achieving full payback inside 6 to 9 months."
+      ]
+    },
+    {
+      title: "Pillar 4: 90-Day Fractional & Enterprise Execution",
+      desc: "Applies disciplined PMP delivery governance to eliminate the 80% pilot failure rate.",
+      bullets: [
+        "<strong>Days 1–30 (Audit & Guardrails):</strong> Complete Shadow AI discovery, publish AUP, and charter the AI Governance Council.",
+        "<strong>Days 31–60 (Prioritization):</strong> Score 15+ departmental ideas on ROI vs. Feasibility; kill low-value science projects.",
+        "<strong>Days 61–90 (Production Delivery):</strong> Deploy 2–3 high-ROI workflows with live KPI dashboards and internal team handover."
+      ]
+    }
+  ];
+
+  function switchTab(id, btn) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('nav button').forEach(el => el.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    if (btn) btn.classList.add('active');
+  }
+
+  function selectPillar(idx, card) {
+    document.querySelectorAll('.pillar-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    const p = pillars[idx];
+    document.getElementById('pillar-detail').innerHTML = `
+      <h3>${p.title}</h3>
+      <p style="color: #e2e8f0;">${p.desc}</p>
+      <ul style="margin-left: 1.25rem; color: var(--muted);">${p.bullets.map(b => `<li>${b}</li>`).join('')}</ul>
+    `;
+  }
+
+  function copyPolicy() {
+    const text = document.getElementById('policy-text').innerText;
+    navigator.clipboard.writeText(text).then(() => alert('Acceptable Use Policy copied to clipboard!'));
+  }
+
+  function filterRisks() {
+    const q = document.getElementById('risk-search').value.toLowerCase();
+    const lvl = document.getElementById('risk-level').value;
+    document.querySelectorAll('#risk-table tbody tr').forEach(row => {
+      const matchText = row.innerText.toLowerCase().includes(q);
+      const matchLvl = (lvl === 'ALL' || row.dataset.level === lvl);
+      row.style.display = (matchText && matchLvl) ? '' : 'none';
+    });
+  }
+
+  function classifyAgent() {
+    const d = parseInt(document.getElementById('data-sens').value);
+    const s = parseInt(document.getElementById('sys-access').value);
+    const score = Math.max(d, s);
+    let tier, badge, controls;
+    if (score === 1) {
+      tier = "Tier 1: Low Risk (Internal Productivity)";
+      badge = "tag-go";
+      controls = "Requires enterprise Zero-Data-Retention (ZDR) license and standard user verification. No AI Council pre-approval needed.";
+    } else if (score === 2) {
+      tier = "Tier 2: Medium Risk (Operational / Assisted External)";
+      badge = "tag-high";
+      controls = "Requires AI Governance Council sign-off, RAG source grounding, logging/audit trail, and human review before external release.";
+    } else {
+      tier = "Tier 3: High / Critical Risk (Autonomous & Regulated)";
+      badge = "tag-critical";
+      controls = "Mandatory formal NIST AI RMF Risk Assessment, adversarial red-teaming, sandboxed least-privilege API tokens, deterministic kill switch, and explicit Human-in-the-Loop approval gate before write execution.";
+    }
+    document.getElementById('agent-result').innerHTML = `
+      <span class="tag ${badge}" style="margin-bottom:0.5rem;">${tier}</span>
+      <p style="color:#f8fafc; margin-bottom:0;"><strong>Mandatory Controls:</strong> ${controls}</p>
+    `;
+  }
+
+  function calculateROI() {
+    const name = document.getElementById('uc-name').value || "Candidate Use Case";
+    const benefit = parseFloat(document.getElementById('annual-benefit').value) || 0;
+    const impl = parseFloat(document.getElementById('impl-cost').value) || 0;
+    const run = parseFloat(document.getElementById('run-cost').value) || 0;
+    const totalY1Cost = impl + run;
+    const netY1 = benefit - totalY1Cost;
+    const roi = totalY1Cost > 0 ? ((netY1 / totalY1Cost) * 100).toFixed(1) : 0;
+    const monthlyNet = (benefit - run) / 12;
+    const payback = monthlyNet > 0 ? (impl / monthlyNet).toFixed(1) : "N/A";
+
+    let gate = "KILL / DEFER";
+    let gateClass = "tag-critical";
+    if (roi >= 100 && payback !== "N/A" && parseFloat(payback) <= 9) {
+      gate = "GO — APPROVE FOR PRODUCTION";
+      gateClass = "tag-go";
+    } else if (roi > 25) {
+      gate = "PILOT — 60-DAY BOUNDED TEST";
+      gateClass = "tag-high";
+    }
+
+    document.getElementById('roi-output').innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; margin-bottom:0.5rem;">
+        <strong style="font-size:1.05rem;">${name}</strong>
+        <span class="tag ${gateClass}">${gate}</span>
+      </div>
+      <p style="color:#e2e8f0; margin-bottom:0;">
+        <strong>Year-1 Net Value:</strong> $${netY1.toLocaleString()} &nbsp;|&nbsp;
+        <strong>Year-1 ROI:</strong> ${roi}% &nbsp;|&nbsp;
+        <strong>Payback Period:</strong> ${payback} months
+      </p>
+    `;
+  }
+
+  function downloadStarterKit() {
+    const md = `# The Production AI Operating Framework (PAIOF)
+Created by Raguraman Ramachandran, PMP
+
+## 1. Enterprise AI Acceptable Use Policy
+- Prohibited Shadow AI: Never paste PII, PHI, source code, or confidential records into unapproved consumer LLMs.
+- Tier 1 (Internal): Enterprise ZDR tools only; standard employee review.
+- Tier 2 (External/Ops): AI Governance Council approval + mandatory human review.
+- Tier 3 (Autonomous/Regulated): NIST AI RMF assessment, red-teaming, least-privilege APIs, and kill switches.
+
+## 2. 90-Day Fractional CAIO Sprint
+- Days 1-30: Shadow AI Audit, Acceptable Use Policy, AI Governance Council Charter.
+- Days 31-60: FinOps Use-Case Prioritization Matrix (top 2-3 high-ROI workflows).
+- Days 61-90: Governed Production Rollout, KPI Dashboard, Internal Handover.
+`;
+    const blob = new Blob([md], { type: 'text/markdown' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'PAIOF_Starter_Kit.md';
+    a.click();
+  }
+
+  const roadmap = [
+    "Week 1: DeepLearning.AI — Generative AI for Everyone + Publish Framework MVP",
+    "Week 2: Wharton Course 1 — AI Fundamentals + Data Readiness Checklist",
+    "Week 3: Wharton Course 1 — ML & Predictive Analytics + GenAI vs. ML Decision Tree",
+    "Week 4: Wharton Course 2 — AI in Marketing & Finance + FinOps ROI Scorecard",
+    "Week 5: Wharton Course 2 — Fraud & Personalization + 90-Day Quick-Win Catalog",
+    "Week 6: Wharton Course 3 — AI in People Management + HR AI Guardrail Policy",
+    "Week 7: Wharton Course 3 — Workforce Reskilling + 30-60-90 Adoption Plan",
+    "Week 8: Wharton Course 4 — AI Strategy & Governance + Acceptable Use Policy",
+    "Week 9: Wharton Capstone Complete + Publish NIST AI RMF Risk Register",
+    "Week 10: Vanderbilt — GenAI Primer & Deep Research + Citation SOP",
+    "Week 11: Vanderbilt — Prompt Engineering for Leaders + Executive Prompt Library",
+    "Week 12: Vanderbilt — Agentic AI for Leaders + Agentic Risk & Kill-Switch Matrix"
+  ];
+
+  function renderTracker() {
+    const saved = JSON.parse(localStorage.getItem('paiof_progress') || '{}');
+    const container = document.getElementById('tracker-list');
+    container.innerHTML = roadmap.map((item, i) => `
+      <div class="week-item ${saved[i] ? 'done' : ''}">
+        <input type="checkbox" ${saved[i] ? 'checked' : ''} onchange="toggleWeek(${i}, this.checked)" />
+        <div><strong>${item}</strong></div>
+      </div>
+    `).join('');
+  }
+
+  function toggleWeek(idx, val) {
+    const saved = JSON.parse(localStorage.getItem('paiof_progress') || '{}');
+    saved[idx] = val;
+    localStorage.setItem('paiof_progress', JSON.stringify(saved));
+    renderTracker();
+  }
+
+  classifyAgent();
+  calculateROI();
+  renderTracker();
+</script>
+</body>
+</html>
